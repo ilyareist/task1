@@ -1,0 +1,206 @@
+{
+	"id": "fd8dd65f-9339-ae1c-6f34-e4b4c59b7dd4",
+	"name": "payments",
+	"description": "",
+	"order": [
+		"94dca402-5cd1-1fee-72fe-3606a24d2f4a",
+		"2d7140a1-0294-824f-b860-9c11c2f654a6",
+		"d2e09013-7589-1525-7149-7e382a1392d4",
+		"a533fa3f-7638-a2da-1d31-dc0dce50713a",
+		"5018f73f-1a80-199e-497a-fa6fcd3d8216",
+		"3b04cb0d-299d-d8fb-2fac-2c5665ca6872"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1572902006460,
+	"owner": 0,
+	"public": false,
+	"requests": [
+		{
+			"id": "2d7140a1-0294-824f-b860-9c11c2f654a6",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://0.0.0.0:8080/api/payments/v1/payments",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "fd8dd65f-9339-ae1c-6f34-e4b4c59b7dd4",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://0.0.0.0:8080/api/payments/v1/payments",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1572902045247,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n    \"from\": \"Ivan\",\n    \"amount\": 19,\n    \"to\": \"John\"\n}"
+		},
+		{
+			"id": "3b04cb0d-299d-d8fb-2fac-2c5665ca6872",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://0.0.0.0:8080/api/payments/v1/payments/rates",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "fd8dd65f-9339-ae1c-6f34-e4b4c59b7dd4",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://0.0.0.0:8080/api/payments/v1/payments/rates",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1572902076920,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n    \"currency\": \"RUB\",\n    \"date\": \"2019-1-12\"\n}"
+		},
+		{
+			"id": "5018f73f-1a80-199e-497a-fa6fcd3d8216",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://0.0.0.0:8080/api/payments/v1/payments",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "fd8dd65f-9339-ae1c-6f34-e4b4c59b7dd4",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://0.0.0.0:8080/api/payments/v1/payments",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1572902069712,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n    \"id\": \"john\",\n    \"balance\": 55.00,\n    \"currency\": \"USD\"\n}"
+		},
+		{
+			"id": "94dca402-5cd1-1fee-72fe-3606a24d2f4a",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://0.0.0.0:8080/api/accounts/v1/accounts",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "fd8dd65f-9339-ae1c-6f34-e4b4c59b7dd4",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://0.0.0.0:8080/api/accounts/v1/accounts",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1572902026992,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n    \"id\": \"john\",\n    \"balance\": 55.00,\n    \"currency\": \"USD\"\n}"
+		},
+		{
+			"id": "a533fa3f-7638-a2da-1d31-dc0dce50713a",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://0.0.0.0:8080/api/accounts/v1/accounts",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "fd8dd65f-9339-ae1c-6f34-e4b4c59b7dd4",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://0.0.0.0:8080/api/accounts/v1/accounts",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1572902060929,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n    \"id\": \"Mark\",\n    \"balance\": 100.00,\n    \"country\": \"USA\",\n    \"city\":\"Colorado\",\n    \"currency\": \"USD\"\n}"
+		},
+		{
+			"id": "d2e09013-7589-1525-7149-7e382a1392d4",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://0.0.0.0:8080/api/payments/v1/payments/deposit",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "fd8dd65f-9339-ae1c-6f34-e4b4c59b7dd4",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://0.0.0.0:8080/api/payments/v1/payments/deposit",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1572902051778,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n    \"amount\": 120,\n    \"account\": \"Ivan\"\n}"
+		}
+	]
+}

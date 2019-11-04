@@ -14,7 +14,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/ilyareist/task1/account"
 	"github.com/ilyareist/task1/payment"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type dbLogger struct{}
@@ -67,7 +66,6 @@ func main() {
 	mux.Handle("/api/payments/v1/", payment.MakeHandler(ps, httpLogger))
 
 	http.Handle("/", accessControl(mux))
-	http.Handle("/metrics", promhttp.Handler())
 
 	errs := make(chan error, 2)
 	go func() {
