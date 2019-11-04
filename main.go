@@ -12,10 +12,8 @@ import (
 	"github.com/ilyareist/task1/db"
 
 	"github.com/go-kit/kit/log"
-	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/ilyareist/task1/account"
 	"github.com/ilyareist/task1/payment"
-	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -105,48 +103,12 @@ func setupDB(logger log.Logger) *pg.DB {
 }
 
 func setupPaymentService(payments payment.Repository, accounts account.Repository, logger log.Logger) payment.Service {
-	fieldKeys := []string{"method"}
-
 	ps := payment.NewService(payments, accounts)
-	ps = payment.NewLoggingService(log.With(logger, "component", "payment"), ps)
-	ps = payment.NewMetricsService(
-		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "api",
-			Subsystem: "payment_service",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, fieldKeys),
-		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "api",
-			Subsystem: "payment_service",
-			Name:      "request_latency_microseconds",
-			Help:      "Total duration of requests in microseconds.",
-		}, fieldKeys),
-		ps,
-	)
 	return ps
 }
 
 func setupAccountService(accounts account.Repository, logger log.Logger) account.Service {
-	fieldKeys := []string{"method"}
-
 	as := account.NewService(accounts)
-	as = account.NewLoggingService(log.With(logger, "component", "account"), as)
-	as = account.NewMetricsService(
-		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: "api",
-			Subsystem: "account_service",
-			Name:      "request_count",
-			Help:      "Number of requests received.",
-		}, fieldKeys),
-		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-			Namespace: "api",
-			Subsystem: "account_service",
-			Name:      "request_latency_microseconds",
-			Help:      "Total duration of requests in microseconds.",
-		}, fieldKeys),
-		as,
-	)
 	return as
 }
 
