@@ -8,7 +8,6 @@ import (
 	"github.com/ilyareist/task1/account"
 	"github.com/ilyareist/task1/errs"
 	"github.com/ilyareist/task1/payment"
-	"github.com/shopspring/decimal"
 )
 
 // CreateSchema creating schema if its not exist. Without any migrations mechanic, just schema only.
@@ -36,18 +35,7 @@ func (r *accountRepository) Store(account *account.Account) error {
 	return nil
 }
 
-// Store account in the repository
-func (r *accountRepository) Update(id account.ID, amount decimal.Decimal) (*account.Account, error) {
-	p := &account.Account{ID: id}
-	err := r.conn.Select(p)
-	if err != nil {
-		return p,err
-	}
-	//p.Balance.Add(decimal.NewFromFloat32(100))
-	p.Balance=p.Balance.Add(amount)
-	err = r.conn.Update(p)
-	return p,err
-}
+
 
 // Find account in the repository with specified id
 func (r *accountRepository) Find(id account.ID) (*account.Account, error) {
@@ -117,6 +105,7 @@ func (r *paymentRepository) Store(payments ...*payment.Payment) error {
 	}
 	return nil
 }
+
 
 // Find payments list for an account.
 func (r *paymentRepository) Find(id account.ID) []*payment.Payment {

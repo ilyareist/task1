@@ -60,18 +60,6 @@ func makeLoadAccountEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-type updateAccountRequest struct {
-	Amount decimal.Decimal `json:"amount" valid:"decimal"`
-}
-
-func makeUpdateAccountEndpoint(s Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(idField)
-		a, err := s.Update(req.ID, req.Amount)
-		return loadAccountResponse{Account: a, Err: err}, nil
-	}
-}
-
 func makeLoadAllAccountsEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		r := s.LoadAll()

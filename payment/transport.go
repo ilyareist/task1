@@ -3,6 +3,7 @@ package payment
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/asaskevich/govalidator"
@@ -29,6 +30,19 @@ func MakeHandler(s Service, logger kitlog.Logger) http.Handler {
 		opts...,
 	)
 
+	newDepositHandler := kithttp.NewServer(
+		makeDepositEndpoint(s),
+		decodeDepositRequest,
+		errs.EncodeResponse,
+		opts...,
+	)
+	convertPaymentHandler := kithttp.NewServer(
+		makeConvertCurrencyEndpoint(s),
+		decodeConvertPaymentRequest,
+		errs.EncodeResponse,
+		opts...,
+	)
+
 	loadPaymentsHandler := kithttp.NewServer(
 		makeLoadPaymentsEndpoint(s),
 		decodeLoadPaymentsRequest,
@@ -45,7 +59,9 @@ func MakeHandler(s Service, logger kitlog.Logger) http.Handler {
 
 	router := mux.NewRouter()
 
+	router.Handle("/api/payments/v1/payments/convert", convertPaymentHandler).Methods("POST")
 	router.Handle("/api/payments/v1/payments", newPaymentHandler).Methods("POST")
+	router.Handle("/api/payments/v1/payments/deposit", newDepositHandler).Methods("POST")
 	router.Handle("/api/payments/v1/payments", loadAllPaymentsHandler).Methods("GET")
 	router.Handle("/api/payments/v1/payments/{id}", loadPaymentsHandler).Methods("GET")
 
@@ -60,6 +76,30 @@ func decodeNewPaymentRequest(_ context.Context, r *http.Request) (interface{}, e
 	if _, err := govalidator.ValidateStruct(body); err != nil {
 		return nil, errs.ValidationError{Err: err}
 	}
+	return body, nil
+}
+
+func decodeDepositRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var body newDepositRequest
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		return nil, err
+	}
+	if _, err := govalidator.ValidateStruct(body); err != nil {
+		return nil, errs.ValidationError{Err: err}
+	}
+	return body, nil
+}
+
+func decodeConvertPaymentRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var body ConvertCurrencyRequest
+	fmt.Println(r)
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		return nil, err
+	}
+	if _, err := govalidator.ValidateStruct(body); err != nil {
+		return nil, errs.ValidationError{Err: err}
+	}
+	fmt.Println(body.Currency)
 	return body, nil
 }
 

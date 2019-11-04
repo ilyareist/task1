@@ -29,8 +29,37 @@ func makeNewPaymentEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
+type newDepositRequest struct {
+	AccountID account.ID      `json:"account" valid:"alphanum,required,stringlength(1|255)"`
+	Amount        decimal.Decimal `json:"amount" valid:"decimal,required"`
+}
+
+func makeDepositEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(newDepositRequest)
+		err := s.Deposit(req.AccountID, req.Amount)
+		return errorOnlyResponse{Err: err}, nil
+	}
+}
+
 type loadPaymentsRequest struct {
 	AccountID account.ID `json:"account"`
+}
+type ConvertCurrencyRequest struct {
+	Amount   decimal.Decimal `json:"amount" valid:"decimal"`
+	Currency Currency        `json:"currency" valid:"in(USD|RUB)"`
+}
+
+type ConvertCurrencyResponse struct {
+	Amount decimal.Decimal `json:"amount"`
+}
+
+func makeConvertCurrencyEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ConvertCurrencyRequest)
+		a := s.Convert(req.Amount, req.Currency)
+		return ConvertCurrencyResponse{Amount: a}, nil
+	}
 }
 
 func makeLoadPaymentsEndpoint(s Service) endpoint.Endpoint {

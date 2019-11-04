@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/ilyareist/task1/errs"
@@ -42,12 +43,7 @@ func MakeHandler(as Service, logger kitlog.Logger) http.Handler {
 		errs.EncodeResponse,
 		opts...,
 	)
-	updateAccountHandler := kithttp.NewServer(
-		makeUpdateAccountEndpoint(as),
-		decodeUpdateAccountRequest,
-		errs.EncodeResponse,
-		opts...,
-	)
+
 	loadAccountHandler := kithttp.NewServer(
 		makeLoadAccountEndpoint(as),
 		decodeLoadAccountRequest,
@@ -73,7 +69,6 @@ func MakeHandler(as Service, logger kitlog.Logger) http.Handler {
 
 	router.Handle("/api/accounts/v1/accounts", newAccountHandler).Methods("POST")
 	router.Handle("/api/accounts/v1/accounts", loadAllAccountsHandler).Methods("GET")
-	router.Handle("/api/accounts/v1/accounts/{id}", updateAccountHandler).Methods("PUT")
 	router.Handle("/api/accounts/v1/accounts/{id}", loadAccountHandler).Methods("GET")
 	router.Handle("/api/accounts/v1/accounts/{id}", deleteAccountHandler).Methods("DELETE")
 
@@ -88,6 +83,7 @@ func decodeNewAccountRequest(_ context.Context, r *http.Request) (interface{}, e
 	if _, err := govalidator.ValidateStruct(body); err != nil {
 		return nil, errs.ValidationError{Err: err}
 	}
+	fmt.Println(body)
 	return body, nil
 }
 
@@ -98,21 +94,6 @@ func decodeLoadAccountRequest(_ context.Context, r *http.Request) (interface{}, 
 		return nil, errs.ErrBadRoute
 	}
 	return idField{ID: ID(id)}, nil
-}
-
-func decodeUpdateAccountRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	vars := mux.Vars(r)
-	id, ok := vars["id"]
-	if !ok {
-		return nil, errs.ErrBadRoute
-	}
-
-	var body updateAccountRequest
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		return nil, err
-	}
-
-	return idField{ID: ID(id), Amount: 	body.Amount}, nil
 }
 
 func decodeLoadAllAccountsRequest(_ context.Context, _ *http.Request) (interface{}, error) {

@@ -2,14 +2,19 @@
 package payment
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/ilyareist/task1/account"
 	"github.com/ilyareist/task1/errs"
 	"github.com/shopspring/decimal"
+	"io/ioutil"
+	"net/http"
 )
 
 // Direction of payment regarding account.
 type Direction string
+type Currency string
 
 const (
 	Incoming Direction = "incoming"
@@ -37,6 +42,12 @@ type Service interface {
 
 	// LoadAll returns all payments, registered in the system.
 	LoadAll() []*Payment
+
+	// Update an account returns a read model of an account.
+	Deposit(accountID account.ID, amount decimal.Decimal) error
+
+	// Converts USD to the currency
+	Convert(amount decimal.Decimal, currency Currency) (decimal.Decimal)
 }
 
 type service struct {
@@ -49,14 +60,17 @@ func (s *service) New(fromAccountID account.ID, amount decimal.Decimal, toAccoun
 	if fromAccountID == toAccountID {
 		return errs.ErrAccountsAreEqual
 	}
-	_, err := s.accounts.Find(fromAccountID)
+	from, err := s.accounts.Find(fromAccountID)
 	if err != nil {
 		return errs.ErrUnknownSourceAccount
 	}
-	//if from.Balance.LessThan(amount) {
-	//	return errs.ErrInsufficientMoney
-	//}
-	_, err = s.accounts.Find(toAccountID)
+	fmt.Println(from.Currency)
+
+	if from.Balance.LessThan(amount) {
+		return errs.ErrInsufficientMoney
+	}
+	to, err := s.accounts.Find(toAccountID)
+	fmt.Println(to.Currency)
 	if err != nil {
 		return errs.ErrUnknownTargetAccount
 	}
@@ -82,6 +96,28 @@ func (s *service) New(fromAccountID account.ID, amount decimal.Decimal, toAccoun
 	return nil
 }
 
+
+func (s *service) Deposit(accountID account.ID, amount decimal.Decimal) error {
+
+	_, err := s.accounts.Find(accountID)
+	if err != nil {
+		return errs.ErrUnknownSourceAccount
+	}
+
+	incomingPayment := Payment{
+		ID:          uuid.New(),
+		Account:     accountID,
+		Amount:      amount,
+		FromAccount: accountID,
+		Direction:   Incoming,
+	}
+	err = s.payments.Store(&incomingPayment)
+	if err != nil {
+		return errs.ErrStorePayments
+	}
+	return nil
+}
+
 // Load returns payments list for an account.
 func (s *service) Load(accountID account.ID) []*Payment {
 	return s.payments.Find(accountID)
@@ -90,6 +126,22 @@ func (s *service) Load(accountID account.ID) []*Payment {
 // LoadAll returns all payments, registered in the system.
 func (s *service) LoadAll() []*Payment {
 	return s.payments.FindAll()
+}
+
+// Convert returns amount in a given currency
+func (s *service) Convert(amount decimal.Decimal, currency Currency) decimal.Decimal {
+	res, _ := http.Get("https://api.exchangeratesapi.io/latest?symbols=GBP&&base=USD")
+	type people struct {
+		Number int `json:"rates"`
+	}
+	body, _ := ioutil.ReadAll(res.Body)
+
+	people1 := people{}
+	_ = json.Unmarshal(body, &people1)
+
+
+	fmt.Println(people1.Number)
+	return amount
 }
 
 // NewService creates a payment service with necessary dependencies.
@@ -108,6 +160,7 @@ type Repository interface {
 	// Find payments list for an account.
 	Find(id account.ID) []*Payment
 
+	//Deposit(accountID account.ID, amount decimal.Decimal) error
 	// FindAll returns all payments, registered in the system.
 	FindAll() []*Payment
 

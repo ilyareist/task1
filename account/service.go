@@ -33,8 +33,6 @@ type Service interface {
 	// New registers a new account in the system, with desired Balance.
 	New(id ID, country Country, city City, currency Currency, balance decimal.Decimal) error
 
-	Update(id ID, amount decimal.Decimal) (*Account, error)
-
 	// Load returns a read model of an account.
 	Load(id ID) (*Account, error)
 
@@ -61,14 +59,6 @@ func (s *service) New(id ID, country Country, city City, currency Currency, bala
 		Balance:  balance,
 		Currency: currency,
 	})
-}
-
-func (s *service) Update(id ID, amount decimal.Decimal) (*Account, error) {
-	a, err := s.accounts.Update(id, amount)
-	if err != nil {
-		return nil, err
-	}
-	return a, nil
 }
 
 // Load returns a read model of an account.
@@ -101,8 +91,6 @@ func NewService(accounts Repository) Service {
 type Repository interface {
 	// Store account in the repository
 	Store(account *Account) error
-
-	Update(id ID, amount decimal.Decimal) (*Account, error)
 
 	// Find account in the repository with specified id
 	Find(id ID) (*Account, error)
