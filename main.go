@@ -31,7 +31,7 @@ func (d dbLogger) AfterQuery(q *pg.QueryEvent) {
 var (
 	flagHttpAddr = flag.String("http_address", "0.0.0.0:8080", "Http address for web server running")
 
-	flagDBAddr     = flag.String("db_address", "192.168.0.107:5432", "Address to connect to PostgreSQL server")
+	flagDBAddr     = flag.String("db_address", "postgres:5432", "Address to connect to PostgreSQL server")
 	flagDBUser     = flag.String("db_user", "postgres", "PostgreSQL connection user")
 	flagDBPassword = flag.String("db_password", "password", "PostgreSQL connection password")
 	flagDBDatabase = flag.String("database", "payments", "PostgreSQL database name")
@@ -99,6 +99,7 @@ func setupDB(logger log.Logger) *pg.DB {
 	}
 	if err := db.CreateSchema(conn); err != nil {
 		_ = logger.Log("transport", "DB", "address", *flagDBAddr, "msg", err)
+		panic(err)
 	}
 	return conn
 }

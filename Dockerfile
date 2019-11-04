@@ -28,7 +28,7 @@ COPY --from=builder /go/bin/payments /go/bin/payments
 WORKDIR /go/bin/
 
 EXPOSE 8080
-USER payments
+#USER payments
 
 ENTRYPOINT ["/go/bin/payments"]
 CMD []

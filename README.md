@@ -36,17 +36,16 @@ API Documentation see [here](./docs/api.md)
 
 ### Command-line flags
 
- - Web server:
-   - `-http_address` _string_ -- Http address for web server running (default "0.0.0.0:8080")
- - Database:
-   - `-db_address` _string_ -- Address to connect to PostgreSQL server (default "localhost:5432")
-   - `-database` _string_ -- PostgreSQL database name (default "payments")
-   - `-db_user` _string_ -- PostgreSQL connection user (default "postgres")
-   - `-db_password` _string_ -- PostgreSQL connection password
-   - `-pool_size` _int_ -- PostgreSQL connection pool size (default 10)
-   - `-app_name` _string_ -- PostgreSQL application name (for logging) (default "payments")
-   - `-db_log` -- Switch for statements logging
+#### Running locally
+To run project locally with docker-compose use:
 
+```bash
+docker-compose up
+```
+This command will create .env file from .env.dist and start Docker cluster with following components:
+
+- Postgresql Database
+- Backend http://127.0.0.1:8080 
 ## Dependencies
 
 - [go-kit](http://github.com/go-kit/kit) -- toolkit for building microservices, recommended by design;
@@ -70,46 +69,5 @@ applications;
 ### Step 2. Run it
 
 ```bash
-docker run --rm -p 8099:8080 payments-app --db_address=192.168.0.1:5432 --db_password=${DB_PASSWORD}
+docker run --rm -p 8080:8080 payments-app --db_address=${DB_ADDR} --db_password=${DB_PASSWORD}
 ```
-
-## How to run tests
-
-```bash
-go test -race ./...
-
-```
-
-## How to run code linting
-
-```bash
-golangci-lint run --presets=bugs,complexity,format
-```
-
-## How to Contribute
-
-We definitely welcome patches and contribution to this project!
-
-### Support
-
-If you do have a contribution to the package, feel free to create a Pull Request or an Issue.
-
-### What to contribute
-
-If you don't know what to do, there are some features and functions that need to be done
-
-   - Refactor code
-   - Edit docs and README: spellcheck, grammar and typo check
-   - Create actual list of contributors and projects that currently using this package
-   - Resolve issues and bugs
-   - Implement benchmarking
-   - Implement batch of examples
-   - Look at forks for new features and fixes
-
-### Advice
-
-Feel free to create what you want, but keep in mind when you implement new features:
-
-  - Code must be clear and readable, names of variables/constants clearly describes what they are doing
-  - Public functions must be documented and described in source file
-  - There are must be unit-tests for any new functions and improvements

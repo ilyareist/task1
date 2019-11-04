@@ -1,0 +1,42 @@
+version: '3.7'
+services:
+
+  postgres:
+    image: postgres:9.6
+    networks:
+      ps_net:
+        aliases:
+          - postgres
+    container_name: postgres
+    restart: always
+    volumes:
+      - ./docker/postgresql/data:/var/lib/postgresql/data/
+      - ./db.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=payments
+      - POSTGRES_PORT=5432
+
+  ps_instance1:
+    build:
+      context: .
+    restart: always
+    container_name: ps-instance1
+    networks:
+      ps_net:
+        aliases:
+          - instance1
+    environment:
+      - DB_NAME=payments
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - HTTP_PORT=8080
+    ports:
+      - 8080:8080
+
+networks:
+  ps_net:
+    driver: bridge
