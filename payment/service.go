@@ -32,6 +32,12 @@ type Payment struct {
 	Deleted     bool            `json:"-" sql:"deleted,notnull"`
 }
 
+type Rate struct {
+	Currency string  `json:"currency" sql:"type:varchar(255)"`
+	Date     string  `json:"date" sql:"type:varchar(255)"`
+	Rate     float64 `json:"rate" sql:"type:float"`
+}
+
 // Service is the interface that provides payment methods.
 type Service interface {
 	// New registers a new payment in the system.
@@ -43,11 +49,11 @@ type Service interface {
 	// LoadAll returns all payments, registered in the system.
 	LoadAll() []*Payment
 
+	// Show rate on the specific date
+	Rates(currency string, date string) (Rate, error)
+
 	// Update an account returns a read model of an account.
 	Deposit(accountID account.ID, amount decimal.Decimal) error
-
-	// Converts USD to the currency
-	Convert(amount decimal.Decimal, currency Currency) (decimal.Decimal)
 }
 
 type service struct {
@@ -66,26 +72,49 @@ func (s *service) New(fromAccountID account.ID, amount decimal.Decimal, toAccoun
 	}
 	fmt.Println(from.Currency)
 
-	if from.Balance.LessThan(amount) {
+	var fromAmount decimal.Decimal
+	if from.Currency != "USD" {
+		date := "latest"
+		currency := string(from.Currency)
+		rate, _ := s.Rates(currency, date)
+		fromAmount = amount.Mul(decimal.NewFromFloat(rate.Rate))
+	} else {
+		fromAmount = amount
+	}
+
+	if from.Balance.LessThan(fromAmount) {
 		return errs.ErrInsufficientMoney
 	}
+
+
 	to, err := s.accounts.Find(toAccountID)
-	fmt.Println(to.Currency)
+	//fmt.Println(to.Currency)
 	if err != nil {
 		return errs.ErrUnknownTargetAccount
 	}
 
+	var toAmount decimal.Decimal
+	if to.Currency != "USD" {
+		date := "latest"
+		currency := string(to.Currency)
+		rate, _ := s.Rates(currency, date)
+		toAmount = amount.Mul(decimal.NewFromFloat(rate.Rate))
+	} else {
+		toAmount = amount
+	}
+
+
 	outgoingPayment := Payment{
 		ID:        uuid.New(),
 		Account:   fromAccountID,
-		Amount:    amount,
+		Amount:    fromAmount,
 		ToAccount: toAccountID,
 		Direction: Outgoing,
 	}
 	incomingPayment := Payment{
 		ID:          uuid.New(),
 		Account:     toAccountID,
-		Amount:      amount,
+		Amount:      toAmount,
 		FromAccount: fromAccountID,
 		Direction:   Incoming,
 	}
@@ -96,18 +125,27 @@ func (s *service) New(fromAccountID account.ID, amount decimal.Decimal, toAccoun
 	return nil
 }
 
-
 func (s *service) Deposit(accountID account.ID, amount decimal.Decimal) error {
 
-	_, err := s.accounts.Find(accountID)
+	account, err := s.accounts.Find(accountID)
 	if err != nil {
 		return errs.ErrUnknownSourceAccount
+	}
+	var amountUSD decimal.Decimal
+	fmt.Println(account.Currency)
+	if account.Currency != "USD" {
+		date := "latest"
+		currency := string(account.Currency)
+		rate, _ := s.Rates(currency, date)
+		amountUSD = amount.Mul(decimal.NewFromFloat(rate.Rate))
+	} else {
+		amountUSD = amount
 	}
 
 	incomingPayment := Payment{
 		ID:          uuid.New(),
 		Account:     accountID,
-		Amount:      amount,
+		Amount:      amountUSD,
 		FromAccount: accountID,
 		Direction:   Incoming,
 	}
@@ -129,19 +167,24 @@ func (s *service) LoadAll() []*Payment {
 }
 
 // Convert returns amount in a given currency
-func (s *service) Convert(amount decimal.Decimal, currency Currency) decimal.Decimal {
-	res, _ := http.Get("https://api.exchangeratesapi.io/latest?symbols=GBP&&base=USD")
-	type people struct {
-		Number int `json:"rates"`
+func (s *service) Rates(currency string, date string) (Rate, error) {
+	var currentRate Rate
+	var f map[string]interface{}
+	url := "https://api.exchangeratesapi.io/"
+
+	response, err := http.Get(url + date + "?base=USD&&symbols=" + currency)
+	body, _ := ioutil.ReadAll(response.Body)
+
+	if err := json.Unmarshal([]byte(body), &f); err != nil {
+		return currentRate, err
 	}
-	body, _ := ioutil.ReadAll(res.Body)
 
-	people1 := people{}
-	_ = json.Unmarshal(body, &people1)
+	k, _ := f["rates"].(map[string]interface{})[currency].(float64)
 
-
-	fmt.Println(people1.Number)
-	return amount
+	currentRate.Currency = currency
+	currentRate.Date = date
+	currentRate.Rate = k
+	return currentRate, err
 }
 
 // NewService creates a payment service with necessary dependencies.

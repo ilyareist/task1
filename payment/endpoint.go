@@ -31,7 +31,7 @@ func makeNewPaymentEndpoint(s Service) endpoint.Endpoint {
 
 type newDepositRequest struct {
 	AccountID account.ID      `json:"account" valid:"alphanum,required,stringlength(1|255)"`
-	Amount        decimal.Decimal `json:"amount" valid:"decimal,required"`
+	Amount    decimal.Decimal `json:"amount" valid:"decimal,required"`
 }
 
 func makeDepositEndpoint(s Service) endpoint.Endpoint {
@@ -45,20 +45,23 @@ func makeDepositEndpoint(s Service) endpoint.Endpoint {
 type loadPaymentsRequest struct {
 	AccountID account.ID `json:"account"`
 }
-type ConvertCurrencyRequest struct {
-	Amount   decimal.Decimal `json:"amount" valid:"decimal"`
-	Currency Currency        `json:"currency" valid:"in(USD|RUB)"`
+
+type RatesCurrencyRequest struct {
+	Currency string `json:"currency" `
+	Date     string `json:"date"`
 }
 
-type ConvertCurrencyResponse struct {
-	Amount decimal.Decimal `json:"amount"`
+type RatesCurrencyResponse struct {
+	Currency string          `json:"currency"`
+	Date     string          `json:"date"`
+	Rate     float64         `json:"rate"`
 }
 
-func makeConvertCurrencyEndpoint(s Service) endpoint.Endpoint {
+func makeRatesCurrencyEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(ConvertCurrencyRequest)
-		a := s.Convert(req.Amount, req.Currency)
-		return ConvertCurrencyResponse{Amount: a}, nil
+		req := request.(RatesCurrencyRequest)
+		a, error := s.Rates(req.Currency , req.Date)
+		return a, error
 	}
 }
 

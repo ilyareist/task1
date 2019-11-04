@@ -36,9 +36,9 @@ func MakeHandler(s Service, logger kitlog.Logger) http.Handler {
 		errs.EncodeResponse,
 		opts...,
 	)
-	convertPaymentHandler := kithttp.NewServer(
-		makeConvertCurrencyEndpoint(s),
-		decodeConvertPaymentRequest,
+	ratesPaymentHandler := kithttp.NewServer(
+		makeRatesCurrencyEndpoint(s),
+		decodeRatesPaymentRequest,
 		errs.EncodeResponse,
 		opts...,
 	)
@@ -59,7 +59,7 @@ func MakeHandler(s Service, logger kitlog.Logger) http.Handler {
 
 	router := mux.NewRouter()
 
-	router.Handle("/api/payments/v1/payments/convert", convertPaymentHandler).Methods("POST")
+	router.Handle("/api/payments/v1/payments/rates", ratesPaymentHandler).Methods("POST")
 	router.Handle("/api/payments/v1/payments", newPaymentHandler).Methods("POST")
 	router.Handle("/api/payments/v1/payments/deposit", newDepositHandler).Methods("POST")
 	router.Handle("/api/payments/v1/payments", loadAllPaymentsHandler).Methods("GET")
@@ -90,8 +90,8 @@ func decodeDepositRequest(_ context.Context, r *http.Request) (interface{}, erro
 	return body, nil
 }
 
-func decodeConvertPaymentRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	var body ConvertCurrencyRequest
+func decodeRatesPaymentRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	var body RatesCurrencyRequest
 	fmt.Println(r)
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, err
